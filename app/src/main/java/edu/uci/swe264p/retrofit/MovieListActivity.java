@@ -31,16 +31,22 @@ public class MovieListActivity extends AppCompatActivity {
         setContentView(R.layout.activity_movie_list);
         if (retrofit == null) {
             retrofit = new Retrofit.Builder()
-                    .baseUrl(BASE_URL )
+                    .baseUrl(BASE_URL)
                     .addConverterFactory(GsonConverterFactory.create())
                     .build();
         }
         MovieApiService movieApiService = retrofit.create(MovieApiService.class);
+
+        recyclerView = findViewById(R.id.rvMovieList);
+        recyclerView.setHasFixedSize(true);
+        recyclerView.setLayoutManager(new LinearLayoutManager(this));
+
         Call<TopRatedResponse> call = movieApiService.getTopMovie(API_KEY);
         call.enqueue(new Callback<TopRatedResponse>() {
             @Override
             public void onResponse(Call<TopRatedResponse> call, Response<TopRatedResponse> response) {
                 movies = response.body().getTopMovies();
+                recyclerView.setAdapter(new MovieListAdapter(movies));
             }
 
             @Override
@@ -48,11 +54,6 @@ public class MovieListActivity extends AppCompatActivity {
                 Log.e(TAG, throwable.toString());
             }
         });
-
-        recyclerView = findViewById(R.id.rvMovieList);
-        recyclerView.setHasFixedSize(true);
-        recyclerView.setLayoutManager(new LinearLayoutManager(this));
-        recyclerView.setAdapter(new MovieListAdapter(movies));
 
 
     }
